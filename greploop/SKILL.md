@@ -20,6 +20,7 @@ Iteratively fix a PR/MR/CL until Greptile gives a perfect review: 5/5 confidence
 ## Inputs
 
 - **PR/MR/CL number** (optional): If not provided, detect the PR/MR for the current branch, or the default pending changelist for p4.
+- **`--no-commit`** / **`--fix-only`** (optional flag): Apply Greptile's fixes to the working tree without staging, committing, pushing, or re-shelving. Runs the cycle exactly once instead of looping -- see step 2.
 
 ## Instructions
 
@@ -77,9 +78,11 @@ Key field differences:
 
 Repeat the following cycle. **Max 5 iterations** to avoid runaway loops.
 
+With `--no-commit`/`--fix-only`, run the cycle exactly once: skip the push/re-shelve substep in **A** below and skip **F** entirely instead of looping back to it.
+
 #### A. Trigger Greptile review
 
-Push/shelve the latest changes (if any):
+Push/shelve the latest changes (if any). **Skip this substep with `--no-commit`/`--fix-only`** -- fetch whatever review already exists for the current HEAD/CL instead of pushing new changes.
 
 **GitHub/GitLab:**
 ```bash
@@ -381,6 +384,8 @@ Repeat for each unresolved discussion ID. (GitLab has no batch resolution — lo
 
 #### F. Commit and push / re-shelve
 
+**Skip this step entirely with `--no-commit`/`--fix-only`.** Report the fixes that were made (step 3) and stop -- do not stage, commit, push, re-shelve, or return to step A. The working tree is left modified for the caller's own commit/push workflow.
+
 **GitHub/GitLab:**
 ```bash
 git add -A
@@ -451,4 +456,17 @@ Greploop complete.
   Confidence:    5/5
   Resolved:      9 comments
   Remaining:     0
+```
+
+**`--no-commit`/`--fix-only` example** (single pass, nothing committed or pushed):
+
+```
+Greploop fix-only pass complete.
+  Platform:      GitHub
+  Confidence:    3/5 (before fixes)
+  Resolved:      4 comments
+  Remaining:     0
+
+Fixes applied to the working tree. Nothing was staged, committed, or pushed --
+review and commit them with your own workflow.
 ```
