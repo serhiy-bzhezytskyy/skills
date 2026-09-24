@@ -78,7 +78,7 @@ Key field differences:
 
 Repeat the following cycle. **Max 5 iterations** to avoid runaway loops.
 
-With `--no-commit`/`--fix-only`, run the cycle exactly once: skip the push/re-shelve substep in **A** below and skip **F** entirely instead of looping back to it.
+With `--no-commit`/`--fix-only`, run the cycle exactly once: skip the push/re-shelve substep in **A**, skip **E** (resolving remote threads -- the fix isn't published yet), and skip **F** entirely instead of looping back to it.
 
 #### A. Trigger Greptile review
 
@@ -334,6 +334,8 @@ For each unresolved Greptile comment:
 
 #### E. Resolve threads
 
+**Skip this step with `--no-commit`/`--fix-only`.** The fix only exists in the working tree at this point -- resolving a remote thread now would mark it resolved before the fix is actually pushed. Resolve threads on a normal (non-fix-only) run, after the fix has been committed and pushed.
+
 **GitHub** — fetch unresolved review threads and resolve all that have been addressed (see [GraphQL reference](references/graphql-queries.md)):
 
 ```bash
@@ -458,15 +460,16 @@ Greploop complete.
   Remaining:     0
 ```
 
-**`--no-commit`/`--fix-only` example** (single pass, nothing committed or pushed):
+**`--no-commit`/`--fix-only` example** (single pass, nothing committed, pushed, or resolved remotely):
 
 ```
 Greploop fix-only pass complete.
   Platform:      GitHub
   Confidence:    3/5 (before fixes)
-  Resolved:      4 comments
+  Fixed in tree: 4 comments
   Remaining:     0
 
-Fixes applied to the working tree. Nothing was staged, committed, or pushed --
-review and commit them with your own workflow.
+Fixes applied to the working tree. Nothing was staged, committed, pushed, or
+resolved remotely -- the 4 threads above stay open on GitHub/GitLab until you
+push and resolve them yourself.
 ```
